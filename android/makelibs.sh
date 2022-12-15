@@ -451,7 +451,7 @@ cmake -DCMAKE_TOOLCHAIN_FILE=$CMAKE_TOOLCHAIN_FILE \
       -DCMAKE_PREFIX_PATH="$INSTALLROOT" \
       -DSOVERSION="" \
       .. && \
-      cmake --build . && \
+      cmake --build . -j$NCPUS && \
       cmake --build . --target install
       ERR=$?
 
@@ -632,8 +632,9 @@ return $ERR
 }
 
 build_mariadb() {
+MARIADB_CONNECTOR_C_VERSION=3.3.3
 #MARIADB_CONNECTOR_C_VERSION=3.3.0
-MARIADB_CONNECTOR_C_VERSION=3.2.6
+#MARIADB_CONNECTOR_C_VERSION=3.2.6
 #MARIADB_CONNECTOR_C_VERSION=3.1.6
 #MARIADB_CONNECTOR_C_VERSION=2.3.7
 #MARIADB_CONNECTOR_C_VERSION=2.2.3
@@ -754,8 +755,8 @@ cmake -DCMAKE_TOOLCHAIN_FILE=$CMAKE_TOOLCHAIN_FILE \
       -DICONV_LIBRARY=$INSTALLROOT/lib/libiconv.a \
       .. && \
       make VERBOSE=1 libmariadb && \
-      cmake --build ./libmariadb  --target install && \
-      cmake --build ./include  --target install
+      cmake --build ./libmariadb -j$NCPUS --target install && \
+      cmake --build ./include -j$NCPUS --target install
       ERR=$?
 
       #cp "$INSTALLROOT"/lib/mariadb/lib{mariadb,mysql}client.a
@@ -954,13 +955,17 @@ cmake -DCMAKE_TOOLCHAIN_FILE=$CMAKE_TOOLCHAIN_FILE \
       -DCMAKE_BUILD_TYPE=Release \
       -DCMAKE_MAKE_PROGRAM=make \
       -DCMAKE_PREFIX_PATH="$INSTALLROOT" \
+      -DCMAKE_INCLUDE_PATH="$INSTALLROOT/include" \
+      -DCMAKE_LIBRARY_PATH="$INSTALLROOT/lib" \
+      -DIconv_INCLUDE_DIR="$INSTALLROOT/include" \
+      -DIconv_LIBRARY="$INSTALLROOT/lib/libiconv.a" \
       -DBUILD_SHARED_LIBS=ON \
       -DEXIV2_ENABLE_XMP=OFF \
       -DEXIV2_BUILD_SAMPLES=OFF \
       -DEXIV2_BUILD_EXIV2_COMMAND=OFF \
       .. && \
       sed -i.bak -e 's/-static-libstdc++//;s/ [^ ]*libc\.a//' src/CMakeFiles/exiv2lib.dir/link.txt && \
-      cmake --build . && \
+      cmake --build . -j$NCPUS && \
       cmake --build . --target install
       ERR=$?
 mv -f ${INSTALLROOT}/lib/libexiv2.so ${INSTALLROOT}/lib/libexiv2.14.so
@@ -1635,7 +1640,7 @@ cmake -DCMAKE_TOOLCHAIN_FILE=$CMAKE_TOOLCHAIN_FILE \
       -DCMAKE_PREFIX_PATH="$INSTALLROOT" \
       -DBUILD_SHARED_LIBS=ON \
       .. && \
-      cmake --build . && \
+      cmake --build . -j$NCPUS && \
       cmake --build . --target install
       ERR=$?
 
